@@ -15,10 +15,14 @@ int main (int argc, char** argv) {
 														 );
 
 	// define the callbacks to manage the events. 
+	
 	interface.init_callbacks();
-
+	
+	
 	// initialize the loop of the OpenGL visualization
 	interface.init_rendering_loop();
+	
+	//interface.init_idleFunc();
 
 	return(0);
 }

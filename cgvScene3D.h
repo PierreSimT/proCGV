@@ -24,7 +24,7 @@ class cgvScene3D {
 		double ballDirY;
 		int scoreP1;
 		int scoreP2;
-
+		int textureChosen;
 
 		bool axes;
 

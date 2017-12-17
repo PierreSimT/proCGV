@@ -16,7 +16,7 @@ GLfloat black[] = { 0,0,0 };
 GLfloat c2[] = { 0,0.2,0.4 };
 
 cgvScene3D::cgvScene3D(){
-	axes = true;
+	axes = false;
 	// Section B: initialize the attributes to control the degrees of freedom of the model
 
 	scoreP1 = 0;
@@ -33,7 +33,7 @@ cgvScene3D::cgvScene3D(){
 
 	difficulty = 0.002;
 	textureChosen = 0;
-
+	end = false;
 	
 	// Section D: initialize the attribute/s that identifies the select object and to colour it yellow
 
@@ -140,97 +140,35 @@ void cgvScene3D::render(void) {
 	 glutSolidCube(1);
 	 glPopMatrix();
 
-
-
-
 	 drawNumber(scoreP1, 1, 4.4);
-
 	 drawNumber(scoreP2, -1.5, 4.4);
 
 	 if (scoreP1 == 3) {
-		 std::cout << "Player 1 WINNER";
+		 end = true;
 		 difficulty = 0;
 	 }else if (scoreP2 == 3) {
-		 std::cout << "Player 2 WINNER";
+		 end = true;
 		 difficulty = 0;
 	 };
 
-
 	drawPlayer1();
 	drawPlayer2();
-	drawBall();
-
-		 //Field
-
-	if (textureChosen == 0) {
-		glPushMatrix();
-
-		glMaterialfv(GL_FRONT, GL_EMISSION, black);
-
-		glBegin(GL_QUADS);
-
-		glTexCoord2f(5, 4);
-		glVertex3f(5, 0.0, 4);
-		glTexCoord2f(-5, 4);
-		glVertex3f(-5, 0.0, 4);
-		glTexCoord2f(-5, -5);
-		glVertex3f(-5, 0.0, -5);
-		glTexCoord2f(5, -5);
-		glVertex3f(5, 0.0, -5);
-		glEnd();
-		glPopMatrix();
-
-
-
+	if (!end) {
+		drawBall();
 	}
-	else if (textureChosen == 1) {
-		glPushMatrix();
-
-		glMaterialfv(GL_FRONT, GL_EMISSION, black);
-
-
-		cgvTexture text("h.bmp");
-
-		
-		glBegin(GL_QUADS);
-
-		glTexCoord2f(5, 4);
-		glVertex3f(5, 0.0, 4);
-		glTexCoord2f(-5, 4);
-		glVertex3f(-5, 0.0, 4);
-		glTexCoord2f(-5, -5);
-		glVertex3f(-5, 0.0, -5);
-		glTexCoord2f(5, -5);
-		glVertex3f(5, 0.0, -5);
-		glEnd();
-		glPopMatrix();
-	}
-	else if (textureChosen == 2) {
-		glPushMatrix();
-
-		glMaterialfv(GL_FRONT, GL_EMISSION, black);
-
-	
-		cgvTexture text("s.bmp");
-		glBegin(GL_QUADS);
-
-		glTexCoord2f(5, 4);
-		glVertex3f(5, 0.0, 4);
-		glTexCoord2f(-5, 4);
-		glVertex3f(-5, 0.0, 4);
-		glTexCoord2f(-5, -5);
-		glVertex3f(-5, 0.0, -5);
-		glTexCoord2f(5, -5);
-		glVertex3f(5, 0.0, -5);
-		glEnd();
-		glPopMatrix();
-
-	}
-
-
 
 	glPopMatrix(); // restore the modelview matrix 
 
+}
+
+void cgvScene3D::render2(void) {
+	cgvTexture txt("player1.bmp");
+	draw_quad(50, 50);
+}
+
+void cgvScene3D::render3(void) {
+	cgvTexture txt("player2.bmp");
+	draw_quad(50, 50);
 }
 
 
@@ -529,4 +467,38 @@ void  cgvScene3D::drawNumber(int n, double x, double z) {
 		break;
 	}
 
+}
+
+void cgvScene3D::draw_quad(float div_x, float div_z) {
+	float ini_x = 0;
+	float ini_z = 0;
+	float size_x = 10;
+	float size_z = 10;
+	float width = size_x / div_x;
+	float length = size_z / div_z;
+	float currentX = 0, currentZ = 0;
+
+
+
+	glNormal3f(0, 1, 0);
+	glBegin(GL_QUADS);
+	for (int i = 0; i < div_x; i++) {
+		for (int j = 0; j < div_z; j++) {
+			glTexCoord2f(currentX / size_x, (currentZ / size_z));
+			glVertex3f(currentX, 0.0, currentZ);
+
+			glTexCoord2f(currentX / size_x, ((currentZ + length) / size_z));
+			glVertex3f(currentX, 0.0, currentZ + length);
+
+			glTexCoord2f((currentX + width) / size_x,  ((currentZ + length) / size_z));
+			glVertex3f(currentX + width, 0.0, currentZ + length);
+
+			glTexCoord2f((currentX + width) / size_x,  (currentZ / size_z));
+			glVertex3f(currentX + width, 0.0, currentZ);
+			currentZ += length;
+		}
+		currentX += width;
+		currentZ = 0;
+	}
+	glEnd();
 }

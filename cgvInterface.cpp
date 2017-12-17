@@ -63,9 +63,6 @@ void cgvInterface::create_menu() {
 	glutAddMenuEntry("Easy", 1);
 	glutAddMenuEntry("Medium", 2);
 	glutAddMenuEntry("Difficult", 3);
-	glutAddMenuEntry("No Texture", 4);
-	glutAddMenuEntry("Field Texture", 5);
-	glutAddMenuEntry("Sand Texture", 6);
 
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
 
@@ -84,14 +81,6 @@ void cgvInterface::menuHandle(int value)
 	case 3:
 		interface.scene.difficulty = 0.006;
 		break;
-	case 4:
-		interface.scene.textureChosen = 0;
-		break;
-	case 5:
-		interface.scene.textureChosen = 1;
-		break;
-	case 6:
-		interface.scene.textureChosen = 2;
 	}
 	glutPostRedisplay(); // renew the content of the window
 }
@@ -104,7 +93,7 @@ void cgvInterface::set_glutKeyboardFunc() {
 	if (GetAsyncKeyState(0x49)) interface.scene.movePlayer2(0.0025);
 	if (GetAsyncKeyState(0x53)) interface.scene.movePlayer1(-0.0025);
 	if (GetAsyncKeyState(0x4B)) interface.scene.movePlayer2(-0.0025);
-	if (GetAsyncKeyState(0x41)) interface.scene.set_axes(interface.scene.get_axes() ? false : true);
+	//if (GetAsyncKeyState(0x41)) interface.scene.set_axes(interface.scene.get_axes() ? false : true);
 	if (GetAsyncKeyState(VK_ESCAPE)) exit(1);
 }
 
@@ -132,7 +121,20 @@ void cgvInterface::set_glutDisplayFunc() {
 	interface.camera.apply(interface.camType);
 
 	// Render the scene
-	interface.scene.render();
+	if (interface.scene.end == false) {
+		interface.scene.render();
+	}
+	if (interface.scene.end == true && interface.scene.getScorep1()==3) {
+		interface.camera= cgvCamera(cgvPoint3D(0, -100.0, 0), cgvPoint3D(5.5, 0, 5), cgvPoint3D(0, 0, 1),
+			1 * 5, 1 * 5, 0.1, 200);
+		interface.scene.render2();
+	}
+	if (interface.scene.end == true && interface.scene.getScorep2() == 3) {
+		interface.camera = cgvCamera(cgvPoint3D(0, -100.0, 0), cgvPoint3D(5.5, 0, 5), cgvPoint3D(0, 0, 1),
+			1 * 5, 1 * 5, 0.1, 200);
+		interface.scene.render3();
+	}
+
 
 	glutSwapBuffers(); // it is used instead of glFlush(), to avoid flickering	
 }

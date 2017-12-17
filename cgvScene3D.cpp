@@ -8,17 +8,17 @@
 
 // Constructor methods -----------------------------------
 
-GLfloat colour1[] = { 0,0.7,0 };
+GLfloat colour1[] = { 0.0f ,0.7f, 0.0f  };
 GLfloat blue[] = { 0,0,1 };
 GLfloat red[] = { 1,0,0 };
 GLfloat white[] = { 1, 1, 1 };
 GLfloat black[] = { 0,0,0 };
-GLfloat c2[] = { 0,0.2,0.4 };
+GLfloat c2[] = { 0.0f ,0.2f, 0.4f };
 
 cgvScene3D::cgvScene3D(){
 	axes = true;
 	// Section B: initialize the attributes to control the degrees of freedom of the model
-
+	play = false;
 	scoreP1 = 0;
 	scoreP2 = 0;
 
@@ -33,10 +33,9 @@ cgvScene3D::cgvScene3D(){
 
 	difficulty = 0.002;
 	textureChosen = 0;
-
 	
 	// Section D: initialize the attribute/s that identifies the select object and to colour it yellow
-
+	nameSelected = -1;
 }
 
 cgvScene3D::~cgvScene3D() {}
@@ -107,6 +106,7 @@ void cgvScene3D::render(void) {
 
 
 	// create the model
+
 	glPushMatrix(); // store the model matrices
 
 					// draw the axes
@@ -116,119 +116,133 @@ void cgvScene3D::render(void) {
 	float mesh_color[4] = { 1.0, 0.0, 0.0, 1.0 };
 	glMaterialfv(GL_FRONT, GL_EMISSION, mesh_color);
 
-	//Top border
-	glPushMatrix();
-	glMaterialfv(GL_FRONT, GL_EMISSION, colour1);
-	glTranslatef(0, 0, 4);
-	glScalef(20, 0.5, 0.25);
-	glutSolidCube(1);
-	glPopMatrix();
+	if (nameSelected == 1)
+		play = true;
 
-	//Bottom border
-	glPushMatrix();
-	glMaterialfv(GL_FRONT, GL_EMISSION, colour1);
-	glTranslatef(0, 0, -5);
-	glScalef(20, 0.5, 0.5);
-	glutSolidCube(1);
-	glPopMatrix();
-
-	//Delimiter
-	glPushMatrix();
-	 glMaterialfv(GL_FRONT, GL_EMISSION, colour1);
-	 glTranslatef(0, 0, 5);
-	 glScalef(0.25, 0.5, 2);
-	 glutSolidCube(1);
-	 glPopMatrix();
-
-
-
-
-	 drawNumber(scoreP1, 1, 4.4);
-
-	 drawNumber(scoreP2, -1.5, 4.4);
-
-	 if (scoreP1 == 3) {
-		 std::cout << "Player 1 WINNER";
-		 difficulty = 0;
-	 }else if (scoreP2 == 3) {
-		 std::cout << "Player 2 WINNER";
-		 difficulty = 0;
-	 };
-
-
-	drawPlayer1();
-	drawPlayer2();
-	drawBall();
-
-		 //Field
-
-	if (textureChosen == 0) {
+	if (!play && nameSelected == -1) {
 		glPushMatrix();
+		glPushName(1);
+		glMaterialfv(GL_FRONT, GL_EMISSION, white);
+		glScalef(2, 1, 1);
+		glutSolidCube(1);
+		glPopName();
+		glPopMatrix();
+	}
+	else {
 
-		glMaterialfv(GL_FRONT, GL_EMISSION, black);
+		//Top border
+		glPushMatrix();
+		glMaterialfv(GL_FRONT, GL_EMISSION, colour1);
+		glTranslatef(0, 0, 4);
+		glScalef(20, 0.5, 0.25);
+		glutSolidCube(1);
+		glPopMatrix();
 
-		glBegin(GL_QUADS);
+		//Bottom border
+		glPushMatrix();
+		glMaterialfv(GL_FRONT, GL_EMISSION, colour1);
+		glTranslatef(0, 0, -5);
+		glScalef(20, 0.5, 0.5);
+		glutSolidCube(1);
+		glPopMatrix();
 
-		glTexCoord2f(5, 4);
-		glVertex3f(5, 0.0, 4);
-		glTexCoord2f(-5, 4);
-		glVertex3f(-5, 0.0, 4);
-		glTexCoord2f(-5, -5);
-		glVertex3f(-5, 0.0, -5);
-		glTexCoord2f(5, -5);
-		glVertex3f(5, 0.0, -5);
-		glEnd();
+		//Delimiter
+		glPushMatrix();
+		glMaterialfv(GL_FRONT, GL_EMISSION, colour1);
+		glTranslatef(0, 0, 5);
+		glScalef(0.25, 0.5, 2);
+		glutSolidCube(1);
 		glPopMatrix();
 
 
 
+
+		drawNumber(scoreP1, 1, 4.4);
+		drawNumber(scoreP2, -1.5, 4.4);
+
+		if (scoreP1 == 3) {
+			std::cout << "Player 1 WINNER";
+			difficulty = 0;
+		}
+		else if (scoreP2 == 3) {
+			std::cout << "Player 2 WINNER";
+			difficulty = 0;
+		};
+
+
+		drawPlayer1();
+		drawPlayer2();
+		drawBall();
+
+		//Field
+
+		if (textureChosen == 0) {
+			glPushMatrix();
+
+			glMaterialfv(GL_FRONT, GL_EMISSION, black);
+
+			glBegin(GL_QUADS);
+
+			glTexCoord2f(5, 4);
+			glVertex3f(5, 0.0, 4);
+			glTexCoord2f(-5, 4);
+			glVertex3f(-5, 0.0, 4);
+			glTexCoord2f(-5, -5);
+			glVertex3f(-5, 0.0, -5);
+			glTexCoord2f(5, -5);
+			glVertex3f(5, 0.0, -5);
+			glEnd();
+			glPopMatrix();
+
+
+
+		}
+		else if (textureChosen == 1) {
+			glPushMatrix();
+
+			glMaterialfv(GL_FRONT, GL_EMISSION, black);
+
+
+			cgvTexture text("h.bmp");
+
+
+			glBegin(GL_QUADS);
+
+			glTexCoord2f(5, 4);
+			glVertex3f(5, 0.0, 4);
+			glTexCoord2f(-5, 4);
+			glVertex3f(-5, 0.0, 4);
+			glTexCoord2f(-5, -5);
+			glVertex3f(-5, 0.0, -5);
+			glTexCoord2f(5, -5);
+			glVertex3f(5, 0.0, -5);
+			glEnd();
+			glPopMatrix();
+		}
+		else if (textureChosen == 2) {
+			glPushMatrix();
+
+			glMaterialfv(GL_FRONT, GL_EMISSION, black);
+
+
+			cgvTexture text("s.bmp");
+			glBegin(GL_QUADS);
+
+			glTexCoord2f(5, 4);
+			glVertex3f(5, 0.0, 4);
+			glTexCoord2f(-5, 4);
+			glVertex3f(-5, 0.0, 4);
+			glTexCoord2f(-5, -5);
+			glVertex3f(-5, 0.0, -5);
+			glTexCoord2f(5, -5);
+			glVertex3f(5, 0.0, -5);
+			glEnd();
+			glPopMatrix();
+
+		}
+
+
 	}
-	else if (textureChosen == 1) {
-		glPushMatrix();
-
-		glMaterialfv(GL_FRONT, GL_EMISSION, black);
-
-
-		cgvTexture text("h.bmp");
-
-		
-		glBegin(GL_QUADS);
-
-		glTexCoord2f(5, 4);
-		glVertex3f(5, 0.0, 4);
-		glTexCoord2f(-5, 4);
-		glVertex3f(-5, 0.0, 4);
-		glTexCoord2f(-5, -5);
-		glVertex3f(-5, 0.0, -5);
-		glTexCoord2f(5, -5);
-		glVertex3f(5, 0.0, -5);
-		glEnd();
-		glPopMatrix();
-	}
-	else if (textureChosen == 2) {
-		glPushMatrix();
-
-		glMaterialfv(GL_FRONT, GL_EMISSION, black);
-
-	
-		cgvTexture text("s.bmp");
-		glBegin(GL_QUADS);
-
-		glTexCoord2f(5, 4);
-		glVertex3f(5, 0.0, 4);
-		glTexCoord2f(-5, 4);
-		glVertex3f(-5, 0.0, 4);
-		glTexCoord2f(-5, -5);
-		glVertex3f(-5, 0.0, -5);
-		glTexCoord2f(5, -5);
-		glVertex3f(5, 0.0, -5);
-		glEnd();
-		glPopMatrix();
-
-	}
-
-
-
 	glPopMatrix(); // restore the modelview matrix 
 
 }
@@ -258,7 +272,7 @@ void cgvScene3D::ballMovement() {
 	ballY += ballDirY * difficulty;
 
 	float racket_width = 0.25;
-	float racket_height = 1.5;
+	float racket_height = 1.1;
 
 	// hit by left racket?
 	if (ballX < -4.5 + racket_width &&
@@ -266,7 +280,7 @@ void cgvScene3D::ballMovement() {
 		ballY < player2 + racket_height &&
 		ballY > player2 - racket_height) {
 		// set fly direction depending on where it hit the racket
-		// (t is 0.5 if hit at top, 0 at center, -0.5 at bottom)
+		// (t is 0.02 if hit at top, 0 at center, -0.02 at bottom)
 		float t = ((ballY - player2) / (racket_height)) - 0.02;
 
 		ballDirX = fabs(ballDirX); // force it to be positive
@@ -279,7 +293,7 @@ void cgvScene3D::ballMovement() {
 		ballY < player1 + racket_height &&
 		ballY > player1 - racket_height) {
 		// set fly direction depending on where it hit the racket
-		// (t is 0.5 if hit at top, 0 at center, -0.5 at bottom)
+		// (t is 0.02 if hit at top, 0 at center, -0.02 at bottom)
 		float t = ((ballY - player1) / (racket_height * 2)) - 0.02;
 		ballDirX = -fabs(ballDirX); // force it to be negative
 		ballDirY = t;
@@ -305,12 +319,12 @@ void cgvScene3D::ballMovement() {
 
 	// hit top wall?
 	if (ballY > 3.7) {
-		ballDirY = -0.5; // force it to be negative
+		ballDirY = -0.3; // force it to be negative
 	}
 
 	// hit bottom wall?
 	if (ballY < -4.7) {
-		ballDirY = 0.5; // force it to be positive
+		ballDirY = 0.3; // force it to be positive
 	}
 
 }
@@ -529,4 +543,8 @@ void  cgvScene3D::drawNumber(int n, double x, double z) {
 		break;
 	}
 
+}
+
+void cgvScene3D::selectedObject(int name) {
+	nameSelected = name;
 }

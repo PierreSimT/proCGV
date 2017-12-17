@@ -31,7 +31,9 @@ protected:
 						///// Section D: attributes to selecting by mouse
 	interfaceMode mode; // CGV_VISUALIZE: in the window where the scene is usually rendered  
 						// CGV_SELECT: the user has clicked, the scene must be rendered in selection mode to compute the list of
-
+	int selected_object; // code of the selected object, -1 if there is no selected object
+	bool pressed_button; // button pressed (true) or released(false)
+	int cursorX, cursorY; // pixel of the screen where the mouse is placed while clicking or dragging 
 public:
 
 	// Default constructor and destructor
@@ -44,6 +46,15 @@ public:
 	static void set_glutReshapeFunc(int w, int h); // method to define the camera and the viewport
 												   // it is automatically called when the window is resized
 	static void set_glutDisplayFunc(); // method to render the scene
+
+	static void  set_glutMouseFunc(GLint button, GLint state, GLint x, GLint y); // control mouse clicking
+	static void  set_glutMotionFunc(GLint x, GLint y); // control the mouse movement while a button is pressed
+
+
+	 // Methods
+	 ///// Section D: methods with OpenGL functions for selecting objects by list of impacts
+	void init_selection(int SIZE_IMPACT_LIST, GLuint *impact_list);
+	void finish_selection(int SIZE_IMPACT_LIST, GLuint *impact_list);
 
 
 	static void menuHandle(int value); // method to handle the menu

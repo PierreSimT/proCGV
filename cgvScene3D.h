@@ -13,6 +13,7 @@
 
 class cgvScene3D {
 	protected:
+		int nameSelected;
 
 		float player1;
 		float player2;
@@ -24,20 +25,16 @@ class cgvScene3D {
 		double ballDirY;
 		int scoreP1;
 		int scoreP2;
-		int textureChosen;
 
 		bool axes;
 
 	public:
-
-		void draw_quad(float div_x, float div_z, float _size_x, float _size_z);
-		void drawBitmapText(char *string, float x, float y, float z);
-
-		void drawRect(int x, int y, int width, int height);
-		void drawNumber(int n,double x,double z);
-
+		bool play;
 		int textureChosen;
+
+		void drawNumber(int n,double x,double z);
 		double difficulty;
+
 		// Default constructor and destructor
 		cgvScene3D();
 		~cgvScene3D();
@@ -57,6 +54,7 @@ class cgvScene3D {
 	void movePlayer2(float value);
 	void ballMovement();
 	////// Section D: include here the method/s to indicate the selected object
+	void selectedObject(int name);
 
 		bool get_axes() {return axes;};
 		void set_axes(bool _axes){axes = _axes;};

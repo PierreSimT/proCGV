@@ -43,42 +43,37 @@ public:
 	// Static methods
 	// event callbacks
 	static void set_glutKeyboardFunc(); // method to control keyboard events
-	static void set_glutReshapeFunc(int w, int h); // method to define the camera and the viewport
-												   // it is automatically called when the window is resized
+	static void set_glutReshapeFunc(int w, int h); 
 	static void set_glutDisplayFunc(); // method to render the scene
-
 	static void  set_glutMouseFunc(GLint button, GLint state, GLint x, GLint y); // control mouse clicking
 	static void  set_glutMotionFunc(GLint x, GLint y); // control the mouse movement while a button is pressed
+	static void visible(int vis); // VisibilityFunc
+	static void idle(); // IdleFunc
 
+	// Initial callbacks
+	void init_callbacks(); // initialize all the callbacks
+	void init_rendering_loop(); // render the scene and wait for an event in the interface
 
-	 // Methods
-	 ///// Section D: methods with OpenGL functions for selecting objects by list of impacts
+	// List of impacts
 	void init_selection(int SIZE_IMPACT_LIST, GLuint *impact_list);
 	void finish_selection(int SIZE_IMPACT_LIST, GLuint *impact_list);
 
-
+	// Menu handler
 	static void menuHandle(int value); // method to handle the menu
 	void create_menu(); // Create a menu that is handle with the right button of the mouse. 
 
-						// create the world that is render in the window
 	void create_world(void);
+
 	// initialize all the parameters to create a display window
 	void configure_environment(int argc, char** argv, // main parameters
 		int _width_window, int _height_window, // width and height of the display window
 		int _pos_X, int _pos_Y, // init position of the display window
 		string _title // title of the display window
 	);
-	void init_callbacks(); // initialize all the callbacks
-
-	void init_rendering_loop(); // render the scene and wait for an event in the interface
-
-	static void visible(int vis);
-	static void idle();
-
+	
 	// methods get_ and set_ to access the attributes
 	int get_width_window() { return width_window; };
 	int get_height_window() { return height_window; };
-
 	void set_width_window(int _width_window) { width_window = _width_window; };
 	void set_height_window(int _height_window) { height_window = _height_window; };
 };

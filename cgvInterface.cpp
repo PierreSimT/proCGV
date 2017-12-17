@@ -3,12 +3,12 @@
 
 #include "cgvInterface.h"
 
-extern cgvInterface interface; // the callbacks must be static and this object is required to access to the variables of the class                   // ellos a las variables de la clase
+extern cgvInterface interface; // the callbacks must be static and this object is required to access to the variables of the class 
 
 							   // Constructor and destructor methods -----------------------------------
 
 cgvInterface::cgvInterface() :camType(CGV_PARALLEL) {
-	//// Section D: initialize the attributes to select objects by list of impacts
+	//// Initialize the attributes to select objects by list of impacts
 	mode = CGV_VISUALIZE;
 }
 
@@ -63,9 +63,6 @@ void cgvInterface::create_menu() {
 	glutAddMenuEntry("Easy", 1);
 	glutAddMenuEntry("Medium", 2);
 	glutAddMenuEntry("Difficult", 3);
-	glutAddMenuEntry("No Texture", 4);
-	glutAddMenuEntry("Field Texture", 5);
-	glutAddMenuEntry("Sand Texture", 6);
 
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
 
@@ -84,14 +81,6 @@ void cgvInterface::menuHandle(int value)
 	case 3:
 		interface.scene.difficulty = 0.006;
 		break;
-	case 4:
-		interface.scene.textureChosen = 0;
-		break;
-	case 5:
-		interface.scene.textureChosen = 1;
-		break;
-	case 6:
-		interface.scene.textureChosen = 2;
 	}
 	glutPostRedisplay(); // renew the content of the window
 }
@@ -100,11 +89,11 @@ void cgvInterface::menuHandle(int value)
 
 void cgvInterface::set_glutKeyboardFunc() {
 
-	if (GetAsyncKeyState(0x57)) interface.scene.movePlayer1(0.0025);
-	if (GetAsyncKeyState(0x49)) interface.scene.movePlayer2(0.0025);
-	if (GetAsyncKeyState(0x53)) interface.scene.movePlayer1(-0.0025);
-	if (GetAsyncKeyState(0x4B)) interface.scene.movePlayer2(-0.0025);
-	if (GetAsyncKeyState(0x41)) interface.scene.set_axes(interface.scene.get_axes() ? false : true);
+	if (GetAsyncKeyState(0x57)) interface.scene.movePlayer1(0.0025); // W 
+	if (GetAsyncKeyState(0x53)) interface.scene.movePlayer1(-0.0025); // S
+	if (GetAsyncKeyState(VK_UP)) interface.scene.movePlayer2(0.0025);	// UP
+	if (GetAsyncKeyState(VK_DOWN)) interface.scene.movePlayer2(-0.0025); // DOWN
+	//if (GetAsyncKeyState(0x41)) interface.scene.set_axes(interface.scene.get_axes() ? false : true);
 	if (GetAsyncKeyState(VK_ESCAPE)) exit(1);
 }
 
@@ -126,22 +115,35 @@ void cgvInterface::set_glutDisplayFunc() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the window and the z-buffer
 
-														// set up the viewport
+	// set up the viewport
 	glViewport(0, 0, interface.get_width_window(), interface.get_height_window());
 
-	// Section D: check the mode before applying the camera and projection transformations,
+	// Check the mode before applying the camera and projection transformations,
 	if (interface.mode == CGV_SELECT) {
-		// Section D: if it is in the OpenGL selection mode pass the corresponding parameters to the camera
+		// If it is in the OpenGL selection mode pass the corresponding parameters to the camera
 		interface.init_selection(1024, impact_list);
 	}
 	// Apply the camera and projection transformations according to its parameters and to the mode (selection or visualization)
 	interface.camera.apply(interface.camType);
 
 	// Render the scene
-	interface.scene.render();
+	if (interface.scene.end == false) {
+		interface.scene.render();
+	}
+	if (interface.scene.end == true && interface.scene.getScorep1()==3) {
+		interface.camera= cgvCamera(cgvPoint3D(0, -100.0, 0), cgvPoint3D(5.5, 0, 5), cgvPoint3D(0, 0, 1),
+			1 * 5, 1 * 5, 0.1, 200);
+		interface.scene.render2();
+	}
+	if (interface.scene.end == true && interface.scene.getScorep2() == 3) {
+		interface.camera = cgvCamera(cgvPoint3D(0, -100.0, 0), cgvPoint3D(5.5, 0, 5), cgvPoint3D(0, 0, 1),
+			1 * 5, 1 * 5, 0.1, 200);
+		interface.scene.render3();
+	}
+
 
 	if (interface.mode == CGV_SELECT) {
-		// Section D: exit the selection mode and process the list of impacts
+		// Exit the selection mode and process the list of impacts
 		interface.finish_selection(1024, impact_list);
 		glutPostRedisplay();
 	}
@@ -153,16 +155,16 @@ void cgvInterface::set_glutDisplayFunc() {
 
 void cgvInterface::set_glutMouseFunc(GLint button, GLint state, GLint x, GLint y) {
 
-	// TODO: Section D: check if the left button of the mouse has been clicked. See glutMouseFunc for details.  
+	// check if the left button of the mouse has been clicked. See glutMouseFunc for details.  
 
 	if (button == GLUT_LEFT_BUTTON)
 		interface.pressed_button = true;
-	// Section D: Store the button that has been pressed or released. If it has been clicked, then change to selection mode (CGV_SELECT)
+	// Store the button that has been pressed or released. If it has been clicked, then change to selection mode (CGV_SELECT)
 
 	if (interface.pressed_button && state == GLUT_DOWN)
 		interface.mode = CGV_SELECT;
 
-	// Section D: Save the position of the pixel when the mouse was clicked
+	// Save the position of the pixel when the mouse was clicked
 
 	interface.cursorX = x;
 	interface.cursorY = y;
@@ -172,16 +174,7 @@ void cgvInterface::set_glutMouseFunc(GLint button, GLint state, GLint x, GLint y
 
 }
 
-void cgvInterface::set_glutMotionFunc(GLint x, GLint y) {
-
-	// TODO: Section E: if the mouse button is pressed and there is a selected object, then check the selected object 
-	// and the position of the mouse to update the corresponding degree of freedom of the model accordingly 
-
-	// Section E: Save the new position of the mouse
-
-	// Section E: Redraw the content of the display window 
-
-}
+void cgvInterface::set_glutMotionFunc(GLint x, GLint y) { }
 
 void cgvInterface::init_callbacks() {
 	glutReshapeFunc(set_glutReshapeFunc);
@@ -204,17 +197,12 @@ void cgvInterface::visible(int iVis)
 void cgvInterface::idle(void)
 {
 	set_glutKeyboardFunc();
-	if (interface.scene.play)
+	if ( interface.scene.play )
 		interface.scene.ballMovement();
 	glutPostRedisplay();
 }
 
 void cgvInterface::init_selection(int SIZE_IMPACT_LIST, GLuint *impact_list) {
-	// TODO: Section D: select the variable where the impacts will be stored. Use glSelectBuffer
-	// Section D: Change to the OpenGL selection mode. See function glRenderMode
-	// Section D: set the camera to selection mode with the required parameters to apply it
-	// including the height and width of the selection area. 
-	// Prove several alternatives to test the right size of this small area.  
 
 	interface.mode = CGV_SELECT;
 	glSelectBuffer(SIZE_IMPACT_LIST, impact_list);
@@ -228,12 +216,6 @@ void cgvInterface::init_selection(int SIZE_IMPACT_LIST, GLuint *impact_list) {
 }
 
 int process_impacts(int num_impacts, GLuint *impact_list) {
-	/* TODO: Section D: this function should return the code of the selected object, that can be different of the name assigned in the stack of names,
-	If hierarchical names have used it has to be taken into account in this function to return a single code */
-
-	// Section D: traverse the list of impacts with num_impacts impacts,
-	// save the nearer to the observer (minimum Z)
-	// At the beginning consider that minimum Z has a value of 0xffffffff (the maximum value represented by type GLuint)
 
 	GLuint minimum = 0xffffffff;
 	int name = -1;
@@ -248,22 +230,13 @@ int process_impacts(int num_impacts, GLuint *impact_list) {
 		i += numberNames;
 	}
 
-	// Section D: From the information of the impact with a minimum Z, return the code corresponding to this object: as the scene 
-	// is not saved in any data structure, to return the selected object use the names directly assigned to the objects 
-
 	return name;
 }
 
 void cgvInterface::finish_selection(int SIZE_IMPACT_LIST, GLuint *impact_list) {
 
-	// TODO 
-	// Section D: Change to the OpenGL visualization mode and get the number of impacts  
-
 	interface.mode = CGV_VISUALIZE;
 	int numImpacts = glRenderMode(GL_RENDER);
-
-	// Section D: if there are impacts, process them with the function process_impacts(int num_impacts, GLuint *impact_list);
-	// obtaining the selected object, if any
 
 	if (numImpacts > 0) {
 		interface.selected_object = process_impacts(numImpacts, impact_list);
@@ -273,11 +246,7 @@ void cgvInterface::finish_selection(int SIZE_IMPACT_LIST, GLuint *impact_list) {
 		interface.scene.selectedObject(-1);
 	}
 
-	// Section D: the selection has finished, change to normal visualization
-
 	interface.mode = CGV_VISUALIZE;
-
-	// Section D: set up the camera with the parameters of the visualization mode
 
 	interface.camera.setVisualization();
 	interface.camera.apply(interface.camType);

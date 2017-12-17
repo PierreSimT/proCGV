@@ -17,20 +17,20 @@ class cgvScene3D {
 
 		float player1;
 		float player2;
+		int scoreP1;
+		int scoreP2;
 
 		double ballX;
 		double ballY;
-
 		double ballDirX;
 		double ballDirY;
-		int scoreP1;
-		int scoreP2;
 
 		bool axes;
 
 	public:
 		bool play;
 		int textureChosen;
+		bool end;
 
 		void drawNumber(int n,double x,double z);
 		double difficulty;
@@ -43,21 +43,27 @@ class cgvScene3D {
 
 		// Methods
 		// method with the OpenGL calls to render the scene
-    void render();
+		void render();
+		void render2();
+		void render3();
 
+		void draw_quad(float div_x, float div_z);
+		void selectedObject(int name);
 
-	void drawPlayer1();
-	void drawPlayer2();
-	void drawBall();
+		void drawPlayer1();
+		void drawPlayer2();
+		void movePlayer1(float value);
+		void movePlayer2(float value);
+		int getScorep1() { return scoreP1; };
+		int getScorep2() { return scoreP2; };
 
-	void movePlayer1(float value);
-	void movePlayer2(float value);
-	void ballMovement();
-	////// Section D: include here the method/s to indicate the selected object
-	void selectedObject(int name);
+		void drawBall();
+		void ballMovement();
 
 		bool get_axes() {return axes;};
 		void set_axes(bool _axes){axes = _axes;};
-};
+
+		
+};		
 
 #endif

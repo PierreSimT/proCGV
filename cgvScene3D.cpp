@@ -16,7 +16,7 @@ GLfloat black[] = { 0,0,0 };
 GLfloat c2[] = { 0.0f ,0.2f, 0.4f };
 
 cgvScene3D::cgvScene3D(){
-	axes = true;
+	axes = false;
 	// Section B: initialize the attributes to control the degrees of freedom of the model
 	play = false;
 	scoreP1 = 0;
@@ -33,6 +33,7 @@ cgvScene3D::cgvScene3D(){
 
 	difficulty = 0.002;
 	textureChosen = 0;
+	end = false;
 	
 	// Section D: initialize the attribute/s that identifies the select object and to colour it yellow
 	nameSelected = -1;
@@ -109,7 +110,7 @@ void cgvScene3D::render(void) {
 
 	glPushMatrix(); // store the model matrices
 
-					// draw the axes
+	// draw the axes (disabled from start)
 	if (axes) draw_axes();
 
 	//glLightfv(GL_LIGHT0,GL_POSITION,light0); // the light is placed here and it moves with the scene
@@ -122,9 +123,9 @@ void cgvScene3D::render(void) {
 	if (!play && nameSelected == -1) {
 		glPushMatrix();
 		glPushName(1);
-		glMaterialfv(GL_FRONT, GL_EMISSION, white);
-		glScalef(2, 1, 1);
-		glutSolidCube(1);
+		glTranslatef(-2.5, 0, -2.5);
+		cgvTexture play("start.bmp");
+		draw_quad(50, 50);
 		glPopName();
 		glPopMatrix();
 	}
@@ -154,97 +155,39 @@ void cgvScene3D::render(void) {
 		glutSolidCube(1);
 		glPopMatrix();
 
-
-
-
 		drawNumber(scoreP1, 1, 4.4);
 		drawNumber(scoreP2, -1.5, 4.4);
 
 		if (scoreP1 == 3) {
-			std::cout << "Player 1 WINNER";
+			end = true;
 			difficulty = 0;
 		}
 		else if (scoreP2 == 3) {
-			std::cout << "Player 2 WINNER";
+			end = true;
 			difficulty = 0;
 		};
 
-
 		drawPlayer1();
 		drawPlayer2();
-		drawBall();
-
-		//Field
-
-		if (textureChosen == 0) {
-			glPushMatrix();
-
-			glMaterialfv(GL_FRONT, GL_EMISSION, black);
-
-			glBegin(GL_QUADS);
-
-			glTexCoord2f(5, 4);
-			glVertex3f(5, 0.0, 4);
-			glTexCoord2f(-5, 4);
-			glVertex3f(-5, 0.0, 4);
-			glTexCoord2f(-5, -5);
-			glVertex3f(-5, 0.0, -5);
-			glTexCoord2f(5, -5);
-			glVertex3f(5, 0.0, -5);
-			glEnd();
-			glPopMatrix();
-
-
-
+		if (!end) {
+			drawBall();
 		}
-		else if (textureChosen == 1) {
-			glPushMatrix();
-
-			glMaterialfv(GL_FRONT, GL_EMISSION, black);
-
-
-			cgvTexture text("h.bmp");
-
-
-			glBegin(GL_QUADS);
-
-			glTexCoord2f(5, 4);
-			glVertex3f(5, 0.0, 4);
-			glTexCoord2f(-5, 4);
-			glVertex3f(-5, 0.0, 4);
-			glTexCoord2f(-5, -5);
-			glVertex3f(-5, 0.0, -5);
-			glTexCoord2f(5, -5);
-			glVertex3f(5, 0.0, -5);
-			glEnd();
-			glPopMatrix();
-		}
-		else if (textureChosen == 2) {
-			glPushMatrix();
-
-			glMaterialfv(GL_FRONT, GL_EMISSION, black);
-
-
-			cgvTexture text("s.bmp");
-			glBegin(GL_QUADS);
-
-			glTexCoord2f(5, 4);
-			glVertex3f(5, 0.0, 4);
-			glTexCoord2f(-5, 4);
-			glVertex3f(-5, 0.0, 4);
-			glTexCoord2f(-5, -5);
-			glVertex3f(-5, 0.0, -5);
-			glTexCoord2f(5, -5);
-			glVertex3f(5, 0.0, -5);
-			glEnd();
-			glPopMatrix();
-
-		}
-
-
 	}
+
 	glPopMatrix(); // restore the modelview matrix 
 
+}
+
+void cgvScene3D::render2(void) {
+	glScalef(2, 1, 2);
+	cgvTexture txt("player1.bmp");
+	draw_quad(50, 50);
+}
+
+void cgvScene3D::render3(void) {
+	glScalef(2, 1, 2);
+	cgvTexture txt("player2.bmp");
+	draw_quad(50, 50);
 }
 
 
@@ -547,4 +490,51 @@ void  cgvScene3D::drawNumber(int n, double x, double z) {
 
 void cgvScene3D::selectedObject(int name) {
 	nameSelected = name;
+}
+
+void cgvScene3D::draw_quad(float div_x, float div_z) {
+	float ini_x = 0.0;
+	float ini_z = 0.0;
+	float size_x = 5.0;
+	float size_z = 5.0;
+
+	glNormal3f(0, 1, 0);
+
+	float jumpX = size_x / div_x;
+	float jumpZ = size_z / div_z;
+
+	float xCounter = 0.0;
+	float zCounter = 0.0;
+
+	float textureTJump = 1 / div_x;
+	float textureSJump = 1 / div_z;
+
+	float textureTCounter = 0.0;
+	float textureSCounter = 0.0;
+
+	for (int i = 0; i < div_x; i++) {
+		for (int j = 0; j < div_z; j++) {
+			glBegin(GL_QUADS);
+			glTexCoord2f(textureSCounter, textureTCounter);
+			glVertex3f(xCounter, 0.0, zCounter);
+
+			glTexCoord2f(textureSCounter, textureTCounter + textureTJump);
+			glVertex3f(xCounter, 0.0, zCounter + jumpZ);
+
+			glTexCoord2f(textureSCounter + textureSJump, textureTCounter + textureTJump);
+			glVertex3f(xCounter + jumpX, 0.0, zCounter + jumpZ);
+
+			glTexCoord2f(textureSCounter + textureSJump, textureTCounter);
+			glVertex3f(xCounter + jumpX, 0.0, zCounter);
+
+			glEnd();
+			textureTCounter += textureTJump;
+			zCounter += jumpZ;
+		}
+		textureTCounter = 0.0;
+		zCounter = 0.0;
+		textureSCounter += textureSJump;
+		xCounter += jumpX;
+	}
+
 }
